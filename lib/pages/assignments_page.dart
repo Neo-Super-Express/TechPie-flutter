@@ -27,11 +27,26 @@ class AssignmentsPage extends StatefulWidget {
 }
 
 class _AssignmentsPageState extends State<AssignmentsPage> {
+  Timer? _remainingTimeTimer;
   bool _pastCollapsed = true;
   bool _selectionMode = false;
   bool _showAssignments = true;
   bool _showExams = true;
   final Set<String> _selected = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _remainingTimeTimer = Timer.periodic(const Duration(minutes: 1), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _remainingTimeTimer?.cancel();
+    super.dispose();
+  }
 
   void _exitSelection() {
     setState(() {
@@ -812,7 +827,7 @@ class _AssignmentCard extends StatelessWidget {
 
     final statusLabel = completed
         ? (assignment.status == 'Graded' ? 'Graded' : 'Submitted')
-        : assignment.status;
+        : _deadlineStatusLabel(assignment, now);
 
     return Card(
       margin: EdgeInsets.zero,
@@ -985,4 +1000,18 @@ class _AssignmentCard extends StatelessWidget {
       ),
     );
   }
+}
+
+String? _deadlineStatusLabel(Assignment assignment, DateTime now) {
+  final status = assignment.status?.trim();
+  if (status == null || status.isEmpty) return null;
+  if (status.toLowerCase().replaceAll('.', '') != 'open') return status;
+
+  final remaining = assignment.due.difference(now);
+  if (remaining.isNegative) return '已截止';
+  if (remaining.inDays >= 1) return '${remaining.inDays} 天内';
+  if (remaining.inHours >= 1) return '${remaining.inHours} 小时内';
+  final minutes = remaining.inMinutes;
+  if (minutes >= 1) return '$minutes 分钟内';
+  return '< 1 分钟';
 }
