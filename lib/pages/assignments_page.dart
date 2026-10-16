@@ -9,6 +9,7 @@ import '../models/assignment_overrides.dart';
 import '../services/assignment_service.dart';
 import '../services/service_provider.dart';
 import '../utils/adaptive_motion.dart';
+import '../utils/deadline_time.dart';
 import '../utils/platform.dart';
 import '../widgets/adaptive_alert_dialog.dart';
 import '../widgets/adaptive_feedback.dart';
@@ -891,32 +892,42 @@ class _AssignmentCard extends StatelessWidget {
                       ),
                     ),
                   ],
-                  const Spacer(),
-                  AnimatedSwitcher(
-                    duration: appAnimationDuration(
-                      context,
-                      const Duration(milliseconds: 280),
-                    ),
-                    switchInCurve: isIos()
-                        ? Curves.easeInOut
-                        : Curves.easeInOutCubicEmphasized,
-                    switchOutCurve: isIos()
-                        ? Curves.easeInOut
-                        : Curves.easeInOutCubicEmphasized,
-                    transitionBuilder: (child, animation) => FadeTransition(
-                      opacity: animation,
-                      child: ScaleTransition(scale: animation, child: child),
-                    ),
-                    child: statusLabel == null
-                        ? const SizedBox.shrink()
-                        : Text(
-                            statusLabel,
-                            key: ValueKey(statusLabel),
-                            style: theme.textTheme.labelMedium?.copyWith(
-                              color: statusColor(),
-                              fontWeight: FontWeight.w600,
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: AnimatedSwitcher(
+                      layoutBuilder: (currentChild, previousChildren) => Stack(
+                        alignment: Alignment.centerRight,
+                        children: [
+                          ...previousChildren,
+                          if (currentChild != null) currentChild,
+                        ],
+                      ),
+                      duration: appAnimationDuration(
+                        context,
+                        const Duration(milliseconds: 280),
+                      ),
+                      switchInCurve: isIos()
+                          ? Curves.easeInOut
+                          : Curves.easeInOutCubicEmphasized,
+                      switchOutCurve: isIos()
+                          ? Curves.easeInOut
+                          : Curves.easeInOutCubicEmphasized,
+                      transitionBuilder: (child, animation) => FadeTransition(
+                        opacity: animation,
+                        child: ScaleTransition(scale: animation, child: child),
+                      ),
+                      child: statusLabel == null
+                          ? const SizedBox.shrink()
+                          : Text(
+                              statusLabel,
+                              key: ValueKey(statusLabel),
+                              textAlign: TextAlign.right,
+                              style: theme.textTheme.labelMedium?.copyWith(
+                                color: statusColor(),
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
-                          ),
+                    ),
                   ),
                 ],
               ),
@@ -945,15 +956,17 @@ class _AssignmentCard extends StatelessWidget {
                         : theme.colorScheme.onSurfaceVariant,
                   ),
                   const SizedBox(width: 6),
-                  Text(
-                    'Due: $dueString',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: isPast && !completed
-                          ? Colors.red
-                          : theme.colorScheme.onSurfaceVariant,
-                      fontWeight: isPast && !completed
-                          ? FontWeight.bold
-                          : FontWeight.normal,
+                  Flexible(
+                    child: Text(
+                      'Due: $dueString',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: isPast && !completed
+                            ? Colors.red
+                            : theme.colorScheme.onSurfaceVariant,
+                        fontWeight: isPast && !completed
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                      ),
                     ),
                   ),
                   const Spacer(),
@@ -1007,11 +1020,5 @@ String? _deadlineStatusLabel(Assignment assignment, DateTime now) {
   if (status == null || status.isEmpty) return null;
   if (status.toLowerCase().replaceAll('.', '') != 'open') return status;
 
-  final remaining = assignment.due.difference(now);
-  if (remaining.isNegative) return '已截止';
-  if (remaining.inDays >= 1) return '${remaining.inDays} 天内';
-  if (remaining.inHours >= 1) return '${remaining.inHours} 小时内';
-  final minutes = remaining.inMinutes;
-  if (minutes >= 1) return '$minutes 分钟内';
-  return '< 1 分钟';
+  return formatRemainingTime(assignment.due.difference(now));
 }
