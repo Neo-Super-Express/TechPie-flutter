@@ -333,6 +333,9 @@ class _ThirdPartyBindPageState extends State<ThirdPartyBindPage> {
                       child: TextFormField(
                         controller: _cpdailyCodeCtrl,
                         keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
                         decoration: const InputDecoration(
                           labelText: '验证码',
                           border: OutlineInputBorder(),
@@ -554,6 +557,9 @@ class _ThirdPartyBindPageState extends State<ThirdPartyBindPage> {
                             placeholder: '验证码',
                             controller: _cpdailyCodeCtrl,
                             keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                            ],
                             textInputAction: TextInputAction.done,
                             onSubmitted: (_) => unawaited(_submit()),
                           ),

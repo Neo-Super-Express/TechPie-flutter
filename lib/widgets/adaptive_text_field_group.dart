@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../utils/platform.dart';
 
@@ -8,6 +9,7 @@ class AdaptiveTextFieldGroupItem {
     required this.controller,
     required this.placeholder,
     this.keyboardType = TextInputType.text,
+    this.inputFormatters,
     this.textInputAction = TextInputAction.next,
     this.obscureText = false,
     this.enabled = true,
@@ -17,6 +19,7 @@ class AdaptiveTextFieldGroupItem {
   final TextEditingController controller;
   final String placeholder;
   final TextInputType keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
   final TextInputAction textInputAction;
   final bool obscureText;
   final bool enabled;
@@ -71,6 +74,7 @@ class AdaptiveTextFieldGroup extends StatelessWidget {
         controller: item.controller,
         placeholder: item.placeholder,
         keyboardType: item.keyboardType,
+        inputFormatters: item.inputFormatters,
         textInputAction: item.textInputAction,
         obscureText: item.obscureText,
         enabled: item.enabled,
@@ -94,6 +98,7 @@ class AdaptiveTextFieldGroup extends StatelessWidget {
       controller: item.controller,
       decoration: InputDecoration(hintText: item.placeholder),
       keyboardType: item.keyboardType,
+      inputFormatters: item.inputFormatters,
       textInputAction: item.textInputAction,
       obscureText: item.obscureText,
       enabled: item.enabled,
